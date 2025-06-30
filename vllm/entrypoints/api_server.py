@@ -103,10 +103,12 @@ async def init_app(
     args: Namespace,
     llm_engine: Optional[AsyncLLMEngine] = None,
 ) -> FastAPI:
+    # 构建 FastAPI 应用
     app = build_app(args)
 
     global engine
 
+    # 从命令行参数创建引擎参数
     engine_args = AsyncEngineArgs.from_cli_args(args)
     engine = (llm_engine
               if llm_engine is not None else AsyncLLMEngine.from_engine_args(
