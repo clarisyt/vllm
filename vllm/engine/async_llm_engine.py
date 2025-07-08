@@ -1133,6 +1133,7 @@ class AsyncLLMEngine(EngineClient):
         ```
         """
         try:
+            # 通过add_request将生成请求加入处理队列
             async for output in await self.add_request(
                     request_id,
                     prompt,
@@ -1141,8 +1142,10 @@ class AsyncLLMEngine(EngineClient):
                     trace_headers=trace_headers,
                     priority=priority,
             ):
+                # 通过validate_output确保结果符合RequestOutput格式 并通过yield将结果实时返回给客户端
                 yield LLMEngine.validate_output(output, PoolingRequestOutput)
         except asyncio.CancelledError:
+            # 若请求被取消，调用abort终止并清理资源
             await self.abort(request_id)
             raise
 
