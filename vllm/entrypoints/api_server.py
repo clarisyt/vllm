@@ -146,12 +146,18 @@ async def run_server(args: Namespace,
     await shutdown_task
 
 
+# vllm 程序入口
 if __name__ == "__main__":
+    # 自定义参数解析器
     parser = FlexibleArgumentParser()
+    # 服务器监听地址
     parser.add_argument("--host", type=str, default=None)
     parser.add_argument("--port", type=parser.check_port, default=8000)
+    # SSL/TLS 相关参数
     parser.add_argument("--ssl-keyfile", type=str, default=None)
+    # SSL 证书验证要求
     parser.add_argument("--ssl-certfile", type=str, default=None)
+    # 代理路径设置
     parser.add_argument("--ssl-ca-certs",
                         type=str,
                         default=None,
@@ -173,7 +179,20 @@ if __name__ == "__main__":
         default=None,
         help="FastAPI root_path when app is behind a path based routing proxy")
     parser.add_argument("--log-level", type=str, default="debug")
+    # 将异步引擎的参数添加到当前解析器（实现参数组的模块化）
     parser = AsyncEngineArgs.add_cli_args(parser)
+    # 解析命令行参数
     args = parser.parse_args()
 
     asyncio.run(run_server(args))
+# 参考例子
+# 生产环境配置
+# python server.py \
+#   --host 0.0.0.0 \
+#   --port 8443 \
+#   --ssl-keyfile /etc/ssl/private.key \
+#   --ssl-certfile /etc/ssl/certificate.crt \
+#   --ssl-ca-certs /etc/ssl/ca_bundle.crt \
+#   --ssl-cert-reqs 2 \  # ssl.CERT_REQUIRED
+#   --root-path /api/v1 \
+#   --log-level info
